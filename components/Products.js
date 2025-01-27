@@ -1,110 +1,99 @@
 "use client";
-import React from "react";
-import { BsFillBagPlusFill } from "react-icons/bs";
-import Link from "next/link";
-import { useEffect } from "react";
-import { setProducts, setSelectedProduct } from "@/app/redux/productsSlice";
-import { addToBag } from "@/app/redux/bagSlice";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { toast } from "react-toastify"; // Import toast and ToastContainer
-import "react-toastify/dist/ReactToastify.css"; // Import the CSS for the toast
+import Link from "next/link";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { setProducts } from "@/app/redux/productsSlice";
+import { addToBag } from "@/app/redux/bagSlice";
+import { selectBagProducts, selectProducts } from "@/app/redux/selector";
+import ProductCard from "./ProductCard";
+import { MdOutlineCancelPresentation } from "react-icons/md";
 
 const Products = () => {
-  const bagProducts = useSelector((state) => state.bag.bagProducts); // Access bagProducts from Redux
-  const products = useSelector((state) => state.productsStore.products);
+  const [searchTerm, setSearchTerm] = useState("");
+  const bagProducts = useSelector(selectBagProducts);
+  const products = useSelector(selectProducts);
   const dispatch = useDispatch();
 
   async function fetchData() {
     let response = await fetch("https://fakestoreapi.com/products");
     let data = await response.json();
-    //  console.log(data)
 
-    // Add a `count` property to each product
     const updatedData = data.map((product) => ({
       ...product,
-      count: 0, // Initialize count to 0
+      count: 0,
     }));
 
-    //console.log(updatedData)
     dispatch(setProducts(updatedData));
   }
 
+  //initially the filteredProducts store the products[] array that contain data from fetch api
+  const filteredProducts = products.filter(  
+    (product) =>
+      product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    localStorage.removeItem("searchTerm");
+  };
+
   useEffect(() => {
+    // Load the search term from localStorage on page load
+    const savedSearchTerm = localStorage.getItem("searchTerm");
+    if (savedSearchTerm) {   //if searchterm is in the local storage then set that searchterm
+      setSearchTerm(savedSearchTerm);
+    }
+
     fetchData();
   }, [dispatch]);
 
+  useEffect(() => {
+    // Save the search term to localStorage every time it changes
+    if (searchTerm) {    //if anything is search in the search bar then its true if initial state is empty string it will be false
+      localStorage.setItem("searchTerm", searchTerm);
+    }
+  }, [searchTerm]);
+
   return (
-    <div className="productContainer flex flex-col justify items-center  w-[68%]  ">
-      {/* Add ToastContainer to render toasts */}
-      {/* this component is for search */}
-      <div className=" w-1/2 mx-auto my-5">
+    <div className="productContainer flex flex-col items-center w-[65%]">
+      {/* search container */}
+      <div className="searchcontainer w-1/2 mx-auto my-5 p-2">
         <label className="text-darkgrey font-cabin">Search Item</label>
-        <div>
+        <div className="relative">
           <input
             className="search w-full px-3 py-2 rounded-lg bg-white"
             type="text"
             placeholder="Apple Watch, Samsung S21, Macbook Pro,..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
+          {searchTerm && (
+            <div
+              className="absolute right-2 top-0 bottom-0 flex items-center justify-center "
+              onClick={handleClearSearch}
+            >
+              <MdOutlineCancelPresentation className="text-gray-500 text-3xl cursor-pointer p-1 rounded-full hover:bg-gray-200" />
+            </div>
+          )}
         </div>
       </div>
+
+      {/* products */}
       <div className="flex justify-center items-center w-[95%] my-4">
-        {/* This is for setting grid to center because grid is his child component */}
-
-        <div className="products grid grid-cols-4 gap-4  justify-center items-center  w-full">
-          {products.map((product) => {
-            return (
-              <Link
-                key={product.id}
-                href={`/${product.id}`}
-                onClick={() => dispatch(setSelectedProduct(product))}
-              >
-                <div className=" bg-red-700 ">
-                  <div className="h-[150px]  bg-white flex justify-center items-center rounded-xl">
-                    <img
-                      className="max-h-[150px] py-6"
-                      src={product.image}
-                      alt="Watch"
-                    />
-                  </div>
-                  <div className="productDetails  w-[100%] ">
-                    <h2 className="mx-2 font-normal text-lg truncate">
-                      {product.title}
-                    </h2>
-                    <p className="mx-2 text-darkgrey">{product.category}</p>
-                  </div>
-                  <div className="flex  mt-3  justify-between">
-                    <p className="px-4 font-normal text-lg ">
-                      $ {product.price}
-                    </p>
-                    <div className="px-4">
-                      <button
-                        className="flex justify-center items-center h-7 w-7 bg-black text-white px-1 py-1 rounded-lg hover:bg-slate-800"
-                        onClick={(event) => {
-                          event.preventDefault();
-                          event.stopPropagation();
-
-                          // Check if the product is already in the bag
-                          const existingProduct = bagProducts.find(
-                            (item) => item.id === product.id
-                          );
-                          if (existingProduct) {
-                            // Show toast if product is already in the bag
-                            toast.error("This product is already in your bag!");
-                          } else {
-                            toast.success("Product added to your bag!");
-                            // Dispatch action to add the product to the bag
-                            dispatch(addToBag(product))
-                          }
-                        }}
-                      >
-                        <BsFillBagPlusFill className="max-h-6 max-w-6 " />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+        <div className="products grid grid-cols-4 gap-4 justify-center items-center w-full">
+          {filteredProducts.map((product) => (
+            <Link key={product.id} href={`/${product.id}`}>
+              <ProductCard
+                product={product}
+                bagProducts={bagProducts}
+                dispatch={dispatch}
+                addToBag={addToBag}
+              />
+            </Link>
+          ))}
         </div>
       </div>
     </div>

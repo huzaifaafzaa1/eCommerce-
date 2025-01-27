@@ -3,39 +3,39 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { IoBagHandleOutline } from "react-icons/io5";
-import { useSelector, useDispatch } from "react-redux";
-import { removeFromBag } from "@/app/redux/bagSlice";
+import { useSelector } from "react-redux";
 import { usePathname } from "next/navigation";
-import { ToastContainer, toast } from "react-toastify"; // Importing toast
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import BagProduct from "./BagProduct";    // Import the new BagProduct component
+import { selectBagProducts } from "@/app/redux/selector"; 
 
 const Bag = () => {
-  const bagProducts = useSelector((state) => state.bag.bagProducts);
-  const dispatch = useDispatch();
+
+  // const bagProducts = useSelector((state) => state.bag.bagProducts);
+  const bagProducts = useSelector(selectBagProducts);
+ 
   const pathname = usePathname();
 
-  const [coupon, setCoupon] = useState(""); // State for the coupon code
-  const [discount, setDiscount] = useState(0); // State for the discount amount
+  const [coupon, setCoupon] = useState("");
+  const [discount, setDiscount] = useState(0);
 
   const SHIPPING_COST = 6.99;
   const GST_PERCENTAGE = 17;
 
-  // Calculate total price of items in the bag
   const itemsTotal = bagProducts.reduce(
-    (acc, product) => acc + product.price * (product.count || 1),0      // one argument is initial value and one is callback
+    (acc, product) => acc + product.price * (product.count || 1),
+    0
   );
 
-  // Calculate GST
   const estimatedGST = (itemsTotal * GST_PERCENTAGE) / 100;
 
-  // Calculate order total
   const orderTotal = itemsTotal + SHIPPING_COST + estimatedGST - discount;
 
-  // Apply coupon logic
   const applyCoupon = () => {
     const hardcodedCoupons = {
-      SAVE10: 10, // $10 off
-      SAVE20: 20, // $20 off
+      SAVE10: 10,
+      SAVE20: 20,
     };
 
     if (hardcodedCoupons[coupon]) {
@@ -52,43 +52,21 @@ const Bag = () => {
   };
 
   return (
-    <div className="bag flex gap-1 font-cabin  fixed top-0 right-0 ">
-      <div className="border border-lightgrey rounded-md mx-3 h-[550px] my-12 ">
-        {/* Solid line */}
-      </div>
+    <div className="bag flex gap-1 font-cabin fixed top-0 right-0">
+      <div className="border border-lightgrey rounded-md mx-3 h-[550px] my-12"></div>
 
-      {/* Bag Container */}
       <div className="w-72">
-        {/* Header */}
         <div className="flex justify-center items-center h-20">
           <h1 className="text-center text-4xl">
             {pathname === "/bagItems" ? "Checkout" : "Bag"}
           </h1>
         </div>
 
-        {/* Bag Products */}
         {pathname !== "/bagItems" && (
           <div className="grid grid-cols-3 gap-2 my-2">
             {bagProducts.length > 0 ? (
               bagProducts.map((product, index) => (
-                <div
-                  key={index}
-                  className="bg-white h-[70px] w-[70px] flex justify-center items-center relative group rounded-xl"
-                >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="max-h-[65px] max-w-[65px] px-1 py-1"
-                  />
-                  <button
-                    className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 text-white
-                    flex justify-center items-center opacity-0 hover:opacity-100 transition-opacity duration-300 
-                    group-hover:opacity-100 font-cabin rounded-xl"
-                    onClick={() => dispatch(removeFromBag(product.id))}
-                  >
-                    Remove
-                  </button>
-                </div>
+                <BagProduct key={index} product={product} />     //Using the BagProduct component
               ))
             ) : (
               <p className="font-cabin col-span-3 text-center text-darkgrey">
@@ -98,10 +76,9 @@ const Bag = () => {
           </div>
         )}
 
-        {/* View Bag Button or Order Summary */}
-        <div className="flex justify-center items-center font-cabin ">
+        <div className="flex justify-center items-center font-cabin">
           {pathname === "/bagItems" ? (
-            <div className="bg-white shadow-md rounded-lg p-6 mr-2 ">
+            <div className="bg-white shadow-md rounded-lg p-6 mr-2">
               <h2 className="text-xl mb-4">Order Summary</h2>
               <ul className="space-y-2">
                 <li className="flex justify-between font-cabin text-lightgrey">

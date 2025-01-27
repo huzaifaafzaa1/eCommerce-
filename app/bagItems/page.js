@@ -14,7 +14,7 @@ const bagItems = () => {
   const bagProducts = useSelector((state)=>state.bag.bagProducts)     // state is set i dont need to dispatch it here
 
   return (
-    <div className='w-[70%]  font-cabin '>
+    <div className='w-[65%]  font-cabin '>
       <p className='text-4xl px-8 py-4 font-cabin'>Check your Bag Items</p>
 
       <div className=' flex flex-col justify-between gap-3 px-8 my-2 py-2 '>

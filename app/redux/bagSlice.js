@@ -37,7 +37,7 @@ const initialState = {
           product.count -= 1;
         }
         else {
-          // Optional: Remove the product if count is 0
+          // Remove the product if count is 0
           state.bagProducts = state.bagProducts.filter(
             (item) => item.id !== action.payload
           );

@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
       >
     
   
-      <div className="flex gap-3 font-cabin w-full bg-lightblue ">
+      <div className="flex gap-1 font-cabin w-full bg-lightblue ">
         <Navbar></Navbar>
         <ToastContainer
         position="bottom-right" // Set position to bottom-left

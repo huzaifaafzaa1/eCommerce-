@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useEffect } from 'react'
 import Link from 'next/link'
 import { IoIosArrowBack } from "react-icons/io";
 import { IoBagAddOutline } from "react-icons/io5";
@@ -9,18 +9,27 @@ import { addToBag } from '@/app/redux/bagSlice';
 import { useSelector,useDispatch } from 'react-redux';
 import { toast, ToastContainer } from "react-toastify"; // Import toast and ToastContainer
 import "react-toastify/dist/ReactToastify.css"; // Import the CSS for the toast
+import { useParams } from 'next/navigation';
 
-const productDescription = () => {
+const ProductDescription = () => {
   const dispatch = useDispatch(); 
-  const product = useSelector((state)=>state.productsStore.selectedProduct);
+  
+  // const product = useSelector((state)=>state.productsStore.selectedProduct);
   const bagProducts = useSelector((state) => state.bag.bagProducts); // Access bagProducts from Redux
+  
+  const { productId } = useParams();
+
+  const product = useSelector((state) => state.productsStore.products.find(     
+    (item) => item.id == productId    
+  ));
   // console.log(product)
   // if (!product) {
   //   return <p>No product selected. Please go back and select a product.</p>;
   // }
    
   return ( 
-    <div className='w-[70%]  font-cabin '>
+    <div className='w-[65%]  font-cabin '>
+
        <ToastContainer 
         position="bottom-right" // Set position to bottom-left
         autoClose={3000} // Optional: Adjust auto-close timing
@@ -38,7 +47,6 @@ const productDescription = () => {
      </div>
 
      <div className=''>
-
      <div className='flex gap-3  '>
         <div className='flex gap-4 justify-center ml-3'>
 
@@ -111,4 +119,4 @@ const productDescription = () => {
   )
 }
 
-export default productDescription
+export default ProductDescription
