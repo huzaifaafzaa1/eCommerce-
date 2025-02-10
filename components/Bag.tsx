@@ -7,18 +7,17 @@ import { useSelector } from "react-redux";
 import { usePathname } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import BagProduct from "./BagProduct";    // Import the new BagProduct component
-import { selectBagProducts } from "@/app/redux/selector"; 
+import BagProduct from "./BagProduct"; // Import the new BagProduct component
+import { selectBagProducts } from "../app/redux/selector";
 
-const Bag = () => {
 
-  // const bagProducts = useSelector((state) => state.bag.bagProducts);
-  const bagProducts = useSelector(selectBagProducts);
- 
+const Bag: React.FC = () => {
+  const bagProducts = useSelector(selectBagProducts); // Assuming selectBagProducts is typed correctly
+
   const pathname = usePathname();
 
-  const [coupon, setCoupon] = useState("");
-  const [discount, setDiscount] = useState(0);
+  const [coupon, setCoupon] = useState<string>("");
+  const [discount, setDiscount] = useState<number>(0);
 
   const SHIPPING_COST = 6.99;
   const GST_PERCENTAGE = 17;
@@ -33,7 +32,7 @@ const Bag = () => {
   const orderTotal = itemsTotal + SHIPPING_COST + estimatedGST - discount;
 
   const applyCoupon = () => {
-    const hardcodedCoupons = {
+    const hardcodedCoupons: { [key: string]: number } = {
       SAVE10: 10,
       SAVE20: 20,
     };
@@ -66,7 +65,7 @@ const Bag = () => {
           <div className="grid grid-cols-3 gap-2 my-2">
             {bagProducts.length > 0 ? (
               bagProducts.map((product, index) => (
-                <BagProduct key={index} product={product} />     //Using the BagProduct component
+                <BagProduct key={index} product={product} />   //we are passing product prop mean the product that are in the bag
               ))
             ) : (
               <p className="font-cabin col-span-3 text-center text-darkgrey">

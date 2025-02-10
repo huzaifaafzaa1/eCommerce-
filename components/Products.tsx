@@ -1,14 +1,17 @@
-"use client";
+"use client"
+
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { setProducts } from "@/app/redux/productsSlice";
-import { addToBag } from "@/app/redux/bagSlice";
-import { selectBagProducts, selectProducts } from "@/app/redux/selector";
+import { setProducts } from "../app/redux/productsSlice";
+import { addToBag } from "../app/redux/bagSlice";
+import { selectBagProducts, selectProducts} from "../app/redux/selector";
 import ProductCard from "./ProductCard";
 import { MdOutlineCancelPresentation } from "react-icons/md";
+import { Product, BagProduct } from "../app/redux/type"; // Import BagProduct type from type.ts
+import API from "../services/axios"
 
 const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,20 +19,28 @@ const Products = () => {
   const products = useSelector(selectProducts);
   const dispatch = useDispatch();
 
+  const API_URL = "/products"; // Only the endpoint since baseURL is already set in axios.tsx
+
   async function fetchData() {
-    let response = await fetch("https://fakestoreapi.com/products");
-    let data = await response.json();
-
-    const updatedData = data.map((product) => ({
-      ...product,
-      count: 0,
-    }));
-
-    dispatch(setProducts(updatedData));
+    async function fetchData() {
+      try {
+        let response = await API.get(API_URL); // Using the configured Axios instance
+        let data: Product[] = response.data;  // Explicitly defining the type  
+    
+        // Adding custom properties to the fakestore API data
+        const updatedData: BagProduct[] = data.map((product) => ({
+          ...product,
+          count: 0, // Now the product has a 'count' field
+        }));
+        dispatch(setProducts(updatedData)); // Now it's within the try block, so no error
+      } 
+      catch (error) {
+        console.error(error);
+      }
+    }
   }
 
-  //initially the filteredProducts store the products[] array that contain data from fetch api
-  const filteredProducts = products.filter(  
+  const filteredProducts = products.filter(
     (product) =>
       product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -41,18 +52,17 @@ const Products = () => {
   };
 
   useEffect(() => {
-    // Load the search term from localStorage on page load
     const savedSearchTerm = localStorage.getItem("searchTerm");
-    if (savedSearchTerm) {   //if searchterm is in the local storage then set that searchterm
+    if (savedSearchTerm) {
       setSearchTerm(savedSearchTerm);
     }
 
-    fetchData();
+    fetchData();     
+
   }, [dispatch]);
 
   useEffect(() => {
-    // Save the search term to localStorage every time it changes
-    if (searchTerm) {    //if anything is search in the search bar then its true if initial state is empty string it will be false
+    if (searchTerm) {
       localStorage.setItem("searchTerm", searchTerm);
     }
   }, [searchTerm]);

@@ -1,8 +1,9 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import productsReducer from '@/app/redux/productsSlice';
-import bagReducer from '@/app/redux/bagSlice'
+import productsReducer from '../redux/productsSlice';
+import bagReducer from '../redux/bagSlice'
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+
 
 const persistConfig = {
   key: 'persist-root',
@@ -29,4 +30,5 @@ export const store = configureStore({
     }),
 });
 
+export type RootState = ReturnType<typeof store.getState>; // This will infer the full state type
 export const persistor = persistStore(store);

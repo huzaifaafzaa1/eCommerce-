@@ -2,16 +2,21 @@
 
 import React from "react";
 import { useDispatch } from "react-redux";
-import { removeFromBag } from "@/app/redux/bagSlice";
+import { removeFromBag } from "../app/redux/bagSlice";
+import { Product } from "../app/redux/type";
 
-const BagProduct = ({ product }) => {
+interface BagProductProps {
+  product: Product;
+}
+
+const BagProduct : React.FC<BagProductProps> = ({ product }) => {
   const dispatch = useDispatch();
 
   return (
     <div className="bg-white h-[70px] w-[70px] flex justify-center items-center relative group rounded-xl">
       <img
         src={product.image}
-        alt={product.name}
+        alt=""
         className="max-h-[65px] max-w-[65px] px-1 py-1"
       />
       <button

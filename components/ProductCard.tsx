@@ -1,12 +1,19 @@
-"use client";
 import React from "react";
 import { BsFillBagPlusFill } from "react-icons/bs";
 import { toast } from "react-toastify";
+import { BagProduct } from "../app/redux/type"; // Use BagProduct type here
+import { useDispatch } from "react-redux";
+import { addToBag } from "../app/redux/bagSlice";
 
-const ProductCard = (props) => {
-  const { product, bagProducts, dispatch, addToBag } = props;
-  
-  const handleAddToBag = (event) => {
+interface ProductCardProps {
+  product: BagProduct; // Update to accept BagProduct
+  bagProducts: BagProduct[];
+  dispatch: ReturnType<typeof useDispatch>;
+  addToBag: typeof addToBag;
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ product, bagProducts, dispatch, addToBag }) => {
+  const handleAddToBag = (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -16,7 +23,7 @@ const ProductCard = (props) => {
       toast.error("This product is already in your bag!");
     } else {
       toast.success("Product added to your bag!");
-      dispatch(addToBag(product));
+      dispatch(addToBag(product)); // Dispatch with product that has count
     }
   };
 
@@ -38,7 +45,7 @@ const ProductCard = (props) => {
         <div className="px-4">
           <button
             className="flex justify-center items-center h-7 w-7 bg-black text-white px-1 py-1 rounded-lg hover:bg-slate-800"
-            onClick={handleAddToBag}         //this button will add product to bag
+            onClick={handleAddToBag}
           >
             <BsFillBagPlusFill className="max-h-6 max-w-6" />
           </button>
